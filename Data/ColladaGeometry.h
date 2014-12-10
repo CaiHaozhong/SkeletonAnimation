@@ -108,6 +108,7 @@ public:
 			}
 			offset+=vertex->mJointCount*2;
 		}
+		return true;
 	}	
 
 private:

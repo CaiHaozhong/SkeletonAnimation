@@ -54,7 +54,7 @@ void display()
 
 	glColor3f(1,0,0);	
 	glPolygonMode(GL_FACE_TYPE_FRONT_AND_BACK,GL_LINE);	
-	//drawGeometries();		
+	drawGeometries();		
 	drawJoints();
 //	glBegin(GL_TRIANGLES);
 // 	glVertex3d(-0.078233, -0.040380, 1.677108);
@@ -243,7 +243,7 @@ void drawGeometries()
 }
 void keyBoard(unsigned char c, int a, int b)
 {
-	eyePos.z += 0.1;
+	eyePos.z -= 0.1;
 	//printf("ez:%lf\n",ez);
 	glLoadIdentity();
 	glTranslated(0,0,-eyePos.z+eyeCenter.z);
@@ -258,7 +258,7 @@ void timerCallBack(int t)
 {
 	animator->compute(frame++);
 	if(frame == 36)
-		frame = 3;
+		frame = 1;
 	glutPostRedisplay();
 	glutTimerFunc(0.01,timerCallBack,2);
 }

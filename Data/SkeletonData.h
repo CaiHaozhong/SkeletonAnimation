@@ -45,6 +45,7 @@ public:
 			}
 			joint->mInvertBindMatrix.fromArray(arr);
 		}
+		return true;
 	}
 
 	bool initWithRootNode(daeElement* node)
@@ -197,6 +198,7 @@ public:
 			}
 				
 		}
+		return true;
 	}
 	Joint* getJointsByName(String name){
 		map<String, Joint*>::iterator ret = mJointsMap.find(name);

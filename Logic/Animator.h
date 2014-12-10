@@ -79,7 +79,7 @@ public:
 // 		skeleton->mRootJoint->mJointMatrix = m*skeleton->mRootJoint->mJointMatrix;// skeleton->mRootJoint->mChildren[0]->keyframes.at(frame).mTransformMatrix;
 		skeleton->setUpWorldMatrix();
 		skeleton->computeSkinMatrix();
-		//setupPose();
+		setupPose();
 	}
 	
 private:

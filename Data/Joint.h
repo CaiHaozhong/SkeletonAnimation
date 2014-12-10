@@ -64,11 +64,13 @@ public:
 	Matrix mSkinMatrix;
 
 	/*关键帧存储了时间和变换矩阵*/
-	vector<KeyFrame*> keyframes;
+	vector<KeyFrame> keyframes;
 
 	JointType mType;
 
 	String mName;
+
+	bool mHasAnimation;
 private:
 
 };

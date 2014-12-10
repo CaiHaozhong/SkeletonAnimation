@@ -23,6 +23,8 @@ using namespace std;
 boost::shared_ptr<ColladaData> colladaData;
 Point3d eyeCenter;
 Point3d eyePos;
+Animator* animator = NULL;
+int frame = 0;
 void drawGeometries();
 void drawJoints();
 void drawPoint(Point3d);
@@ -49,9 +51,10 @@ void reshape(int w, int h)
 void display()
 {	
 	glClear(GL_COLOR_BUFFER_BIT);
+
 	glColor3f(1,0,0);	
 	glPolygonMode(GL_FACE_TYPE_FRONT_AND_BACK,GL_LINE);	
-	drawGeometries();		
+	//drawGeometries();		
 	drawJoints();
 //	glBegin(GL_TRIANGLES);
 // 	glVertex3d(-0.078233, -0.040380, 1.677108);
@@ -154,9 +157,9 @@ void initData()
 
 	eyePos.x = (x1+x2)/2;
 	eyePos.y = (y1+y2)/2;
-	eyePos.z = z2+5;
+	eyePos.z = z2+15;
 
-	Animator* animator = new Animator(colladaData->getGeometries().begin()->second.get(),colladaData->getSkeletonData());
+	animator = new Animator(colladaData->getGeometries().begin()->second.get(),colladaData->getSkeletonData());
 	animator->preProcessVertex();
 	animator->setupPose();
 }
@@ -251,6 +254,14 @@ void keyBoard(unsigned char c, int a, int b)
 	//gluLookAt(0,0,ez,0,0,-1,0,1,0);
 	glutPostRedisplay();
 }
+void timerCallBack(int t)
+{
+	animator->compute(frame++);
+	if(frame == 36)
+		frame = 3;
+	glutPostRedisplay();
+	glutTimerFunc(0.01,timerCallBack,2);
+}
 int main(int a, char* b)
 {
 	//_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
@@ -263,6 +274,7 @@ int main(int a, char* b)
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyBoard);
+	glutTimerFunc(0.01,timerCallBack,2);
 	createPopMenu();
 	glutMainLoop();
 // 	Matrix ma(4,4),mb(4,4),mc(4,4);

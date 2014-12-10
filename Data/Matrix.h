@@ -145,6 +145,9 @@ public:
 		double c1, double c2, double c3, double c4,
 		double d1, double d2, double d3, double d4
 		);
+	const vector< vector<double> > getArray(){
+		return array;
+	}
 	void fromArray(double arr[16])
 	{
 		set44(arr[0],arr[1],arr[2],arr[3],
@@ -153,6 +156,7 @@ public:
 			arr[12],arr[13],arr[14],arr[15]
 			);
 	}
+	
 	void fromPoint3d(Point3d p);
 	Point3d getPoint();
 	const Matrix& operator+=( const Matrix& m );

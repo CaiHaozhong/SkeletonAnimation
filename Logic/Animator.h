@@ -44,6 +44,44 @@ public:
 			geometry->getSkinedVerticesRef()[j] = tmp;
 		}
 	}
+	void printMatrix(Matrix& m)
+	{
+		vector< vector<double> > arr = m.getArray();
+		for (int r = 0; r < 4; r++)
+		{
+			for(int col = 0; col < 4; col++)
+				printf("%lf ",arr[r][col]);
+			printf("\n");
+		}
+		printf("\n\n");
+	}
+	void compute(int frame)
+	{
+		for(int i = 0; i < skeleton->mJoints.size(); i++)
+		{
+			Joint* joint = skeleton->mJoints.at(i);
+			if(joint->mHasAnimation)
+			{
+				Matrix a = joint->mJointMatrix;
+				Matrix b = joint->keyframes.at(frame).mTransformMatrix;								
+				//printMatrix(a);
+				//printMatrix(b);
+				joint->mJointMatrix = joint->keyframes.at(frame).mTransformMatrix;
+
+			}
+		}
+
+// 		Matrix m;
+// 		m.set44(1,0,0,0,
+// 			    0,1,0,0,
+// 				0,0,1,0,
+// 				2,0,0,1);
+// 		skeleton->mRootJoint->mJointMatrix = m*skeleton->mRootJoint->mJointMatrix;// skeleton->mRootJoint->mChildren[0]->keyframes.at(frame).mTransformMatrix;
+		skeleton->setUpWorldMatrix();
+		skeleton->computeSkinMatrix();
+		//setupPose();
+	}
+	
 private:
 
 };

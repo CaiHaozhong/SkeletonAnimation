@@ -135,14 +135,67 @@ public:
 			domAnimationRef ani = animations.get(i);//一个animation
 
 			domChannel_Array channels = ani->getChannel_array();
-			
+
+			/*对于只有一个channel的，就跳过，不处理*/
+			if(channels.getCount() <= 1)
+				continue;
+
+			vector<domListOfFloats> timesArrays;
+			vector<domListOfFloats> transformsArrays;
+			vector<MatrixCoordinate> matrixPos;
+			Joint* targetJoint = NULL;
 			for(int j = 0; j < channels.getCount(); j++)
 			{
 				String tar = channels.get(j)->getTarget();
-			}
-			
+				String targetName = _getRealTargetFromTarget(tar);
+				domNode* node = (domNode*)(library_animations->getDAE()->getDatabase()->idLookup(targetName,library_animations->getDocument()));
+				String targetSid = node->getSid();
+				assert(mJointsMap.find(targetSid) != mJointsMap.end());
+				targetJoint = mJointsMap.at(targetSid);
+				targetJoint->mHasAnimation = true;
+				MatrixCoordinate coord = _getCoordinateFromTarget(tar);
+				domURIFragmentType sou = channels.get(j)->getSource();
+				domSampler* sampler = (domSampler*)(library_animations->getDAE()->getDatabase()->idLookup(sou.getFragment(),library_animations->getDocument()));
+				daeString timeId = sampler->getInput_array()[0]->getSource().getFragment();
+				daeString transformId = sampler->getInput_array()[1]->getSource().getFragment();
+				domListOfFloats timeFloats = ((domSource*)(ani->getDAE()->getDatabase()->idLookup(timeId,ani->getDocument())))->getFloat_array()->getValue();
+				domListOfFloats transformFloats = ((domSource*)(ani->getDAE()->getDatabase()->idLookup(transformId,ani->getDocument())))->getFloat_array()->getValue();
+				timesArrays.push_back(timeFloats);
+				transformsArrays.push_back(transformFloats);
+				matrixPos.push_back(coord);
+			}	
+			for(int keyF = 0; keyF < 36; keyF++)
+			{
+				double transformMatrix[16];
+				float t;
+				for(int c = 0; c < channels.getCount(); c++)
+				{
+					domListOfFloats times = timesArrays.at(c);
+					domListOfFloats trans = transformsArrays.at(c);
+					MatrixCoordinate coor = matrixPos.at(c);
+					if(times.getCount() == 36)
+					{
+						t = times.get(keyF);
 
-			
+						/*这里需要注意，y是行*/
+						transformMatrix[coor.x+coor.y*4] = trans.get(keyF);
+					}
+					else
+					{
+						/*这里需要注意，y是行*/
+						transformMatrix[coor.x+coor.y*4] = trans.get(0);
+					}
+				}				
+				Matrix m;
+
+				/*这尼玛坑爹啊，文件中为0，得手动设置为1，不然动画都乱了*/
+				transformMatrix[15] = 1;
+
+				m.fromArray(transformMatrix);
+
+				targetJoint->keyframes[keyF].set(t,m);
+			}
+				
 		}
 	}
 	Joint* getJointsByName(String name){
@@ -153,5 +206,21 @@ public:
 	}
 	int getJointsCount(){return mJoints.size();}
 private:
-
+	struct MatrixCoordinate
+	{
+		int x,y;
+		MatrixCoordinate(int a, int b):x(a),y(b){}
+	};
+	String _getRealTargetFromTarget(String target)
+	{
+		int slash = target.find_first_of('/');
+		return target.substr(0,slash);
+	}
+	MatrixCoordinate _getCoordinateFromTarget(String target)
+	{
+		int len = target.length();
+		int x = target.at(len-5)-'0';
+		int y = target.at(len-2)-'0';
+		return MatrixCoordinate(x,y);
+	}
 };
